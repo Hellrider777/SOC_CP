@@ -1,35 +1,44 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <string>
-
 using namespace std;
+
 typedef long long ll;
+const ll INF = 1e9 + 7;
+
+ll recur(ll n, vector<ll> &vec, vector<ll> &dp)
+{
+    if (n == 0)
+        return 0;
+    if (n < 0)
+        return INF;
+    if (dp[n] != -1)
+        return dp[n];
+    ll res = INF;
+    for (ll k : vec)
+    {
+        if (n >= k)
+            res = min(res, 1 + recur(n - k, vec, dp));
+    }
+    dp[n] = res;
+    return res;
+}
 
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    cout.tie(nullptr);
-    int n, x;
+
+    ll n, x;
     cin >> n >> x;
-    vector<int> vec(n, 0);
-    for (int i = 0; i < n; i++)
+    vector<ll> vec(n);
+    for (ll i = 0; i < n; i++)
     {
         cin >> vec[i];
     }
-    int cnt = 0;
-    int ind = n - 1;
-    while (x > 0)
-    {
-        if (ind < 0)
-            break;
-        cnt += (x / vec[ind]);
-        x -= cnt * vec[ind];
-        ind--;
-    }
-    if (x != 0)
+    vector<ll> dp(x + 1, -1);
+    ll ans = recur(x, vec, dp);
+    if (ans >= INF)
         cout << -1;
     else
-        cout << cnt;
+        cout << ans;
 }
