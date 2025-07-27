@@ -1,64 +1,58 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <string>
 
 using namespace std;
 typedef long long ll;
-
-void precompute(ll max, vector<bool> &prime)
-{
-    prime[1] = false;
-    for (ll i = 2; i <= max; i++)
-    {
-        if (prime[i])
-        {
-            for (ll j = i * i; j <= max; j += i)
-            {
-                prime[j] = false;
-            }
-        }
-    }
-}
 
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    cout.tie(nullptr);
-    ll n;
-    cin >> n;
-    vector<ll> vec(n, 0);
-    ll max = 0;
-    for (ll i = 0; i < n; i++)
+
+    const int MAX = 1e6;
+    vector<bool> is_prime(MAX + 1, true);
+    is_prime[0] = is_prime[1] = false;
+    for (int i = 2; i * i <= MAX; ++i)
     {
-        cin >> vec[i];
-        max = max > vec[i] ? max : vec[i];
-    }
-    vector<bool> prime(max + 1, true);
-    precompute(max, prime);
-    vector<ll> pr;
-    for (ll i = 1; i <= max; i++)
-    {
-        if (prime[i])
-            pr.push_back(i);
+        if (is_prime[i])
+        {
+            for (int j = i * i; j <= MAX; j += i)
+                is_prime[j] = false;
+        }
     }
 
-    for (auto i : vec)
+    int t;
+    cin >> t;
+    while (t--)
     {
-        ll prod = 1;
-        for (auto j : pr)
+        ll num;
+        cin >> num;
+        if (num <= MAX && is_prime[num])
         {
-            if (i == 1)
-                break;
-            ll num = 0;
-            while (i % j == 0)
-            {
-                num++;
-                i /= j;
-            }
-            prod *= (num + 1);
+            cout << 2 << "\n";
+            continue;
         }
-        cout << prod << endl;
+
+        ll ans = 1;
+        ll temp = num;
+        for (ll i = 2; i * i <= temp; ++i)
+        {
+            if (is_prime[i] && num % i == 0)
+            {
+                int cnt = 0;
+                while (num % i == 0)
+                {
+                    num /= i;
+                    cnt++;
+                }
+                ans *= (cnt + 1);
+            }
+        }
+
+        // If anything left of num > 1, it must be a prime factor
+        if (num > 1)
+            ans *= 2;
+
+        cout << ans << "\n";
     }
 }

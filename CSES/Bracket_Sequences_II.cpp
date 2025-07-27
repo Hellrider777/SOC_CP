@@ -2,79 +2,90 @@
 #include <vector>
 #include <string>
 using namespace std;
-typedef long long ll;
-const ll MOD = 1000000007;
 
-// Fast exponentiation
-ll power(ll a, ll b, ll mod)
+typedef long long ll;
+
+const int MOD = 1e9 + 7;
+const int MAXN = 2e6 + 5;
+
+vector<ll> fact(MAXN), inv_fact(MAXN);
+
+ll mod_pow(ll a, ll b, ll m = MOD)
 {
     ll res = 1;
-    while (b)
+    a %= m;
+    while (b > 0)
     {
         if (b & 1)
-            res = res * a % mod;
-        a = a * a % mod;
+            res = res * a % m;
+        a = a * a % m;
         b >>= 1;
     }
     return res;
 }
 
-// Precompute factorials and inverse factorials
-void precompute(vector<ll> &fact, vector<ll> &invfact, ll maxn)
+void precompute_factorials(int n)
 {
-    fact[0] = 1;
-    for (ll i = 1; i <= maxn; i++)
+    fact[0] = inv_fact[0] = 1;
+    for (int i = 1; i <= n; ++i)
         fact[i] = fact[i - 1] * i % MOD;
-    invfact[maxn] = power(fact[maxn], MOD - 2, MOD);
-    for (ll i = maxn - 1; i >= 0; i--)
-        invfact[i] = invfact[i + 1] * (i + 1) % MOD;
+    inv_fact[n] = mod_pow(fact[n], MOD - 2);
+    for (int i = n - 1; i >= 1; --i)
+        inv_fact[i] = inv_fact[i + 1] * (i + 1) % MOD;
 }
 
-ll binom(ll n, const vector<ll> &fact, const vector<ll> &invfact)
+ll nCr(int n, int r)
 {
-    if (n < 1)
-        return 1;
-    return fact[(2 * n) - 2] * invfact[n] % MOD * invfact[n - 1] % MOD;
+    if (r < 0 || r > n)
+        return 0;
+    return fact[n] * inv_fact[r] % MOD * inv_fact[n - r] % MOD;
 }
 
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    ll a;
+
+    int n;
     string l;
-    cin >> a;
-    cin >> l;
-    ll sum = 0;
-    for (ll i = 0; i < l.size(); i++)
+    cin >> n >> l;
+
+    if (n % 2 != 0)
     {
-        if (sum < 0)
+        cout << 0 << "\n";
+        return 0;
+    }
+
+    int open = 0, close = 0;
+    for (char c : l)
+    {
+        if (c == '(')
+            open++;
+        else
+            close++;
+        if (close > open)
         {
-            cout << 0;
+            cout << 0 << "\n"; // invalid prefix
             return 0;
         }
-        if (l[i] == '(')
-            sum++;
-        else
-            sum--;
     }
-    ll inp = a - l.size() - sum;
-    if (sum < 0 || inp < 0 || inp % 2 != 0)
+
+    int rem = n - l.size();
+    int balance = open - close;
+
+    if ((rem - balance) % 2 != 0 || rem < balance)
     {
-        cout << 0;
+        cout << 0 << "\n";
         return 0;
     }
-    else if (inp == 0)
-    {
-        cout << 1;
-        return 0;
-    }
-    ll maxn = (2 * inp) - 2;
 
-    vector<ll> fact(maxn + 1), invfact(maxn + 1);
-    precompute(fact, invfact, maxn);
+    int a = (rem - balance) / 2; // '(' to add
+    int b = rem - a;             // ')' to add
 
-    cout << ((sum + 1) * binom(inp, fact, invfact)) % MOD;
+    precompute_factorials(a + b + 2);
 
+    // Ballot-based formula: (balance + 1) / (a + 1) * C(a + b, a)
+    ll ans = (balance + 1) * nCr(a + b, a) % MOD * mod_pow(a + 1, MOD - 2) % MOD;
+    cout << ans << "\n";
     return 0;
 }
