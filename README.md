@@ -40,3 +40,10 @@ Subset and knapsack-style problems
 Digit DP and optimization-based DP
 
 Learned to recognize problem patterns where DP applies and how to optimize solutions with memoization and tabulation.
+
+# Week 5: Complete Graph Theory
+Learn graph representations and traversal algorithms.
+Work with:
+Trees
+Shortest path algorithms
+Minimum Spanning Trees (MSTs)
